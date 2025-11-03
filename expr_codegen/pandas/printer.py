@@ -60,7 +60,11 @@ class PandasStrPrinter(StrPrinter):
 
     def _print_Equality(self, expr):
         PREC = precedence(expr)
-        return "%s==%s" % (self.parenthesize(expr.args[0], PREC), self.parenthesize(expr.args[1], PREC))
+        return "%s == %s" % (self.parenthesize(expr.args[0], PREC), self.parenthesize(expr.args[1], PREC))
+
+    def _print_Unequality(self, expr):
+        PREC = precedence(expr)
+        return "%s != %s" % (self.parenthesize(expr.args[0], PREC), self.parenthesize(expr.args[1], PREC))
 
     def _print_Or(self, expr):
         PREC = PRECEDENCE["Mul"]

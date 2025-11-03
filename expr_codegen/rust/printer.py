@@ -59,10 +59,6 @@ class RustStrPrinter(StrPrinter):
             return expr.name
         return f'col("{expr.name}")'
 
-    def _print_Equality(self, expr):
-        new_args = [f"eq({self._print(arg)})" for arg in expr.args]
-        return ".".join(new_args)[2:]
-
     def _print_Or(self, expr):
         new_args = [f"or({self._print(arg)})" for arg in expr.args]
         return ".".join(new_args)[2:]
@@ -103,6 +99,8 @@ class RustStrPrinter(StrPrinter):
     def _print_Relational(self, expr):
 
         charmap = {
+            "==": "eq",
+            "!=": "neq",
             "<": "lt",
             ">": "gt",
             ">=": "gt_eq",
