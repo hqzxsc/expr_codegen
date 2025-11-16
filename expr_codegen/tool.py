@@ -1,4 +1,5 @@
 import inspect
+import os
 import pathlib
 from functools import lru_cache
 from io import TextIOBase
@@ -413,6 +414,7 @@ def codegen_exec(df: Union[DataFrame, None],
         - 如果是字符串，会自动从run_file中读取代码
         - 如果是模块名，会自动从模块中读取代码(可调试)
             - 注意：可能调用到其他目录下的同名模块，所以保存的文件名要有辨识度
+        - 如果文件不存在，先生成文件。第二次从生成的文件中生成
     convert_xor: bool
         ^ 转成异或还是乘方
     style: str
@@ -474,10 +476,12 @@ def codegen_exec(df: Union[DataFrame, None],
 
         if input_file is not None:
             if input_file.endswith('.py'):
-                return _get_func_from_file_py(input_file)(df, ge_date_idx)
+                if os.path.exists(input_file):
+                    return _get_func_from_file_py(input_file)(df, ge_date_idx)
             elif input_file.endswith('.sql'):
-                with pl.SQLContext(frames={table_name: df}) as ctx:
-                    return ctx.execute(_get_code_from_file(input_file), eager=isinstance(df, _pl_DataFrame))
+                if os.path.exists(input_file):
+                    with pl.SQLContext(frames={table_name: df}) as ctx:
+                        return ctx.execute(_get_code_from_file(input_file), eager=isinstance(df, _pl_DataFrame))
             else:
                 return _get_func_from_module(input_file)(df, ge_date_idx)  # 可断点调试
     else:
