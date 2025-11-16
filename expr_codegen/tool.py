@@ -2,7 +2,7 @@ import inspect
 import pathlib
 from functools import lru_cache
 from io import TextIOBase
-from typing import Sequence, Union, TypeVar, Optional, Literal, Iterable, Dict
+from typing import Sequence, Union, TypeVar, Optional, Literal, Iterable, Dict, Tuple
 
 import polars as pl
 from black import Mode, format_str
@@ -293,7 +293,7 @@ class ExprTool:
 
         return codes, G
 
-    # @lru_cache(maxsize=64)
+    @lru_cache(maxsize=64)
     def _get_code(self,
                   source: str, *more_sources: str,
                   extra_codes: str,
@@ -307,9 +307,10 @@ class ExprTool:
                   ge_date_idx: int = 0,
                   skip_simplify: bool = False,
                   skip_columns: Iterable[str] = (),
-                  function_mapping={},
+                  function_mapping: Tuple = tuple(),
                   **kwargs) -> str:
         """通过字符串生成代码， 加了缓存，多次调用不重复生成"""
+        function_mapping = dict(function_mapping)
         raw, exprs_list = sources_to_exprs(self.globals_, source, *more_sources, convert_xor=convert_xor, function_mapping=function_mapping)
 
         # 生成代码
@@ -488,6 +489,7 @@ def codegen_exec(df: Union[DataFrame, None],
     del frame
 
     more_sources = [c if isinstance(c, str) else inspect.getsource(c) for c in codes]
+    function_mapping = tuple((k, v) for k, v in function_mapping.items() if inspect.isfunction(v))
 
     code = _TOOL_._get_code(
         *more_sources,
