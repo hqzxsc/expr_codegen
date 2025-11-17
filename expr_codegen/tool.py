@@ -493,7 +493,8 @@ def codegen_exec(df: Union[DataFrame, None],
     del frame
 
     more_sources = [c if isinstance(c, str) else inspect.getsource(c) for c in codes]
-    function_mapping = tuple((k, v) for k, v in function_mapping.items() if inspect.isfunction(v))
+    function_mapping = {k: v for k, v in function_mapping.items() if inspect.isfunction(v)}
+    function_mapping = tuple(sorted(function_mapping.items()))  # 排序，防止循序不同hash不同
 
     code = _TOOL_._get_code(
         *more_sources,
