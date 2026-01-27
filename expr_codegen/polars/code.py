@@ -14,7 +14,7 @@ def get_groupby_from_tuple(tup, func_name, drop_cols):
     """从传入的元组中生成分组运行代码"""
     prefix2, *_ = tup
 
-    if len(drop_cols)>0:
+    if len(drop_cols) > 0:
         drop_str = f'.drop(*{drop_cols})'
     else:
         drop_str = ""
@@ -98,12 +98,17 @@ def codegen(exprs_ldl: ListDictList, exprs_src, syms_dst,
                             _sym = f"pl.all_horizontal({','.join(_sym)})"
                         else:
                             _sym = ','.join(_sym)
-                        if args.over_null == 'partition_by':
-                            func_code.append(f"{va}=({s2}).over({_sym}, _ASSET_, order_by=_DATE_),")
-                        elif args.over_null == 'order_by':
-                            func_code.append(f"{va}=({s2}).over(_ASSET_, order_by=[{_sym}, _DATE_]),")
-                        else:
+
+                        if len(_sym) == 0:
                             func_code.append(f"{va}=({s2}).over(_ASSET_, order_by=_DATE_),")
+                        else:
+                            if args.over_null == 'partition_by':
+                                func_code.append(f"{va}=({s2}).over({_sym}, _ASSET_, order_by=_DATE_),")
+                            elif args.over_null == 'order_by':
+                                func_code.append(f"{va}=({s2}).over(_ASSET_, order_by=[{_sym}, _DATE_]),")
+                            else:
+                                func_code.append(f"{va}=({s2}).over(_ASSET_, order_by=_DATE_),")
+
                     elif k[0] == CS:
                         func_code.append(f"{va}=({s2}).over(_DATE_),")
                     elif k[0] == GP:
