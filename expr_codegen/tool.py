@@ -311,11 +311,9 @@ class ExprTool:
                   ge_date_idx: int = 0,
                   skip_simplify: bool = False,
                   skip_columns: Iterable[str] = (),
-                  function_mapping: Tuple = tuple(),
                   **kwargs) -> str:
         """通过字符串生成代码， 加了缓存，多次调用不重复生成"""
-        function_mapping = dict(function_mapping)
-        raw, exprs_list = sources_to_exprs(self.globals_, source, *more_sources, convert_xor=convert_xor, function_mapping=function_mapping)
+        raw, exprs_list = sources_to_exprs(self.globals_, source, *more_sources, convert_xor=convert_xor)
 
         # 生成代码
         code, G = _TOOL_.all(exprs_list, style=style, template_file=template_file,
@@ -396,9 +394,8 @@ def codegen_exec(df: Union[DataFrame, None],
                  ge_date_idx: int = 0,
                  skip_simplify: bool = False,
                  skip_columns: Iterable[str] = (),
-                 function_mapping: Dict = {},
                  **kwargs) -> Union[DataFrame, str]:
-    """快速转换源代码并执行
+    r"""快速转换源代码并执行
 
     Parameters
     ----------
@@ -456,8 +453,6 @@ def codegen_exec(df: Union[DataFrame, None],
         已经存在的列不参与计算。可用于加快计算速度。只在计算耗时久时再用，否则没有必要
         例如：在研发阶段，第一次计算100个因子，第二次，只改动了其中的5个，所以只要将这5个从df.columns中排除即可。
         注意：生成的源代码有差异。
-    function_mapping:
-        传入函数定义，可直接传`globals()`。用于将所有的关键字参数转换成位置参数
 
     Returns
     -------
@@ -504,8 +499,6 @@ def codegen_exec(df: Union[DataFrame, None],
     del frame
 
     more_sources = [c if isinstance(c, str) else inspect.getsource(c) for c in codes]
-    function_mapping = {k: v for k, v in function_mapping.items() if inspect.isfunction(v)}
-    function_mapping = tuple(sorted(function_mapping.items()))  # 排序，防止循序不同hash不同
 
     code = _TOOL_._get_code(
         *more_sources,
@@ -519,7 +512,6 @@ def codegen_exec(df: Union[DataFrame, None],
         ge_date_idx=ge_date_idx,
         skip_simplify=skip_simplify,
         skip_columns=skip_columns,
-        function_mapping=function_mapping,
         **kwargs
     )
 

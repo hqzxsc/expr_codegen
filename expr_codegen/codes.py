@@ -489,9 +489,9 @@ def _add_default_type(globals_):
     return globals_
 
 
-def sources_to_exprs(globals_, *sources, convert_xor: bool, function_mapping):
+def sources_to_exprs(globals_, *sources, convert_xor: bool):
     """将源代码转换成表达式"""
-
+    function_mapping = {k: v for k, v in globals_.items() if inspect.isfunction(v)}
     globals_ = _add_default_type(globals_)
 
     raw, assigns, funcs_new, args_new, targets_new = sources_to_asts(*sources, convert_xor=convert_xor, function_mapping=function_mapping)

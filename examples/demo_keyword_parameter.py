@@ -7,5 +7,5 @@ def _code_block_1():
     A = cs_rank(CLOSE, pct=True)
 
 
-df = codegen_exec(None, _code_block_1, over_null="partition_by", function_mapping=globals())
+df = codegen_exec(None, _code_block_1, over_null="partition_by")
 print(df)
