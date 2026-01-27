@@ -408,7 +408,12 @@ def codegen_exec(df: Union[DataFrame, None],
     codes:
         函数体。此部分中的表达式会被翻译成目标代码
     extra_codes: str
-        额外代码。不做处理，会被直接复制到目标代码中
+        额外代码。不做处理，会被直接复制到目标代码中。例如：
+
+        r'CS_SW_L1 = r"^sw_l1_\d+$"'
+
+        apply_const_to_expr()
+
     output_file: str| TextIOBase
         保存生成的目标代码到文件中
     run_file: bool or str
