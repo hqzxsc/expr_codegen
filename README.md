@@ -212,21 +212,20 @@ X3 = (ts_returns(CLOSE, 3)).over(_ASSET_, order_by=_DATE_),
 2. `(A<B)*-1`,底层将转换成`int_(A<B)*-1`
 3. 为防止`A==B`被`sympy`替换成`False`，底层会换成`Eq(A,B)`
 4. `A^B`的含义与`convert_xor`参数有关，`convert_xor=True`底层会转换成`Pow(A,B)`，反之为`Xor(A,B)`。默认为`False`，用`**`表示乘方
-5. 支持`A&B&C`，但不支持`A==B==C`。如果C是布尔，AB是数值，可手工替换成`(A==B)==C`。如果ABC是数值需手工替换成`(A==B)&(B==C)`
-6. 不支持`A<=B<=C`，需手工替换成`(A<=B)&(B<=C)`
-7. 支持`A[0]+B[1]+C[2]`，底层会转成`A+ts_delay(B,1)+ts_delay(C,2)`
-8. 支持`~A`,底层会转换成`Not(A)`
-9. `gp_`开头的函数都会返回对应的`cs_`函数。如`gp_func(A,B,C)`会替换成`cs_func(B,C)`,其中`A`用在了`groupby([date, A])`
-10. 支持`A,B,C=MACD()`元组解包，在底层会替换成
+5. 支持`A&B&C`，支持`A==B==C`。支持`A<B<C`
+6. 支持`A[0]+B[1]+C[2]`，底层会转成`A+ts_delay(B,1)+ts_delay(C,2)`
+7. 支持`~A`,底层会转换成`Not(A)`
+8. `gp_`开头的函数都会返回对应的`cs_`函数。如`gp_func(A,B,C)`会替换成`cs_func(B,C)`,其中`A`用在了`groupby([date, A])`
+9. 支持`A,B,C=MACD()`元组解包，在底层会替换成
    ```python
    _x_0 = MACD()
    A = unpack(_x_0, 0)
    B = unpack(_x_0, 1)
    C = unpack(_x_0, 2)
    ```
-11. 单行注释支持参数输入，如：`# --over_null`、`# --over_null=order_by`、`# --over_null=partition_by`
-12. 代码块中，对`import`、`def`、`class`三种语法，自动原样插入到生成的代码中
-13. 虽然`sympy`的限制不支持关键字参数，但`codegen_exec`底层会试着将关键字参数转成位置参数使用
+10. 单行注释支持参数输入，如：`# --over_null`、`# --over_null=order_by`、`# --over_null=partition_by`
+11. 代码块中，对`import`、`def`、`class`三种语法，自动原样插入到生成的代码中
+12. 虽然`sympy`的限制不支持关键字参数，但`codegen_exec`底层会试着将关键字参数转成位置参数使用
 
 ## 下划线开头的变量
 

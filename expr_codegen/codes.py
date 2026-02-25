@@ -34,12 +34,6 @@ class SyntaxTransformer(ast.NodeTransformer):
         self.generic_visit(node)
         return node
 
-    def visit_Compare(self, node):
-        assert len(node.comparators) == 1, f"不支持连续等号，请手工添加括号, {ast.unparse(node)}"
-
-        self.generic_visit(node)
-        return node
-
     def visit_IfExp(self, node):
         # 三元表达式。需要在外部提前替换成or True if else
         # 只要body区域，出现了or True，就认为是特殊处理过的
