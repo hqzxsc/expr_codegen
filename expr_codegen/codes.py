@@ -10,6 +10,48 @@ from sympy import Add, Mul, Pow, Eq, Not, Xor
 from expr_codegen.expr import register_symbols, list_to_exprs
 
 
+class ParentSetter(ast.NodeVisitor):
+    """
+    第一步：遍历 AST 树，为每个节点添加 '_parent' 属性。
+    """
+
+    def visit(self, node):
+        for child in ast.iter_child_nodes(node):
+            child._parent = node
+        return super().visit(node)
+
+
+class KwargsTransformer(ast.NodeTransformer):
+    """格式化参数"""
+
+    def __init__(self, kwargs):
+        self.kwargs = kwargs
+
+    def visit_Name(self, node):
+        if node.id not in self.kwargs:
+            return node
+        if not isinstance(node.ctx, ast.Load):
+            return node
+
+        parent = getattr(node, '_parent', None)
+        if isinstance(parent, ast.Call) and parent.func is node:
+            return node
+
+        return ast.Constant(value=self.kwargs.get(node.id))
+
+
+def code_format(code, **kwargs) -> str:
+    """将代码块中的部分命名参数替换成常量，变相实现动态参数"""
+    tree = ast_comments.parse(inspect.getsource(code))
+    # 记录父节点
+    t1 = ParentSetter()
+    t1.visit(tree)
+    # 替换参数
+    t2 = KwargsTransformer(kwargs)
+    t2.visit(tree)
+    return ast_comments.unparse(tree)
+
+
 class SyntaxTransformer(ast.NodeTransformer):
     """修改语法。注意：一定要修改语法后才能改名"""
 
