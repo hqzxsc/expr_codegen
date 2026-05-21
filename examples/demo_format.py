@@ -24,5 +24,5 @@ TEST = length(CLOSE, {length}, {length} * 2)
 print(code_format(_code_block_1, length=20))
 print(_code_block_2(length=20))
 
-df = codegen_exec(None, code_format(_code_block_1, length=20), over_null='partition_by')
+df = codegen_exec(None, code_format(_code_block_1, length=20), _code_block_2(length=20), over_null='partition_by')
 # print(df)
